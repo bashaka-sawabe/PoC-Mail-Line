@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./logs:/var/www/html/logs
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - mailhog
+
+  db:
+    image: mariadb:10.5
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "9025:8025"
+      - "2025:1025"
+
+volumes:
+  db_data:
