@@ -28,7 +28,11 @@
             </div>
             <div id="lineFields" style="display:none;"></div>
             <label>Message: <textarea name="message" required></textarea></label><br>
+            <!--
             <label>LINE友達追加リンク: <input type="text" name="friend_link" required></label><br>
+            -->
+            <label>LINE友達追加リンク: <input type="text" name="friend_link" value="<?php echo getenv('BASE_URL') . '/add_friend.php'; ?>" required></label><br>
+            
             <input type="submit" value="Send">
         </form>
         <br>

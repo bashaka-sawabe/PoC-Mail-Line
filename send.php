@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Asia/Tokyo');
 require 'vendor/autoload.php';
 
 $host = getenv('MYSQL_HOST') ?: 'db';
@@ -21,14 +22,19 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    session_start(); // セッションを開始
+
     $userId = $_POST['user_id'];
     $sendType = $_POST['send_type'];
     $message = $_POST['message'];
-    $friendLink = $_POST['friend_link'];
+    $baseUrl = getenv('BASE_URL');
 
-    $stmt = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT email, line_id FROM users WHERE id = ?');
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
+
+    // ステートメントを明示的に破棄
+    $stmt = null;
 
     if (!$user) {
         echo 'User not found';
@@ -37,14 +43,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ユーザーごとに一意なトークンを生成
     $token = bin2hex(random_bytes(16));
-    $friendLink = $friendLink . '?token=' . $token;
+    $friendLink = $baseUrl . '/add_friend.php?user_id=' . $userId . '&token=' . $token;
 
     // 生成されたリンクをメール本文に含める
     $message .= "\n\nClick the link to add as friend: " . $friendLink;
 
-    // pending_linksテーブルにリンクとユーザーIDを保存
-    $stmt = $pdo->prepare('INSERT INTO pending_links (user_id, token) VALUES (?, ?)');
-    $stmt->execute([$userId, $token]);
+    // ユーザーごとのトークンを一時的にセッションに保存
+    $_SESSION['tokens'][$userId] = $token;
+
+    // デバッグ: セッション内容をログに出力
+    file_put_contents('logs/session.log', gmdate('Y-m-d H:i:s')." SESSION ID: ".session_id()."\n".print_r($_SESSION, true), FILE_APPEND);
 
     if ($sendType === 'email') {
         $toEmail = $user['email'];
@@ -56,6 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Host = getenv('SMTP_SERVER');
         $mail->Port = getenv('SMTP_PORT');
         $mail->SMTPAuth = false;
+
+        $mail->SMTPDebug = 3; // デバッグ出力のレベルを設定
+        $mail->Debugoutput = function($str, $level) {
+            file_put_contents('logs/phpmailer.log', gmdate('Y-m-d H:i:s')."\t".$level.":\t".$str."\n", FILE_APPEND);
+        };
 
         $mail->setFrom($fromEmail);
         $mail->addAddress($toEmail);
