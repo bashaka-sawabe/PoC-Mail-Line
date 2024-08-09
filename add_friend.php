@@ -24,7 +24,10 @@ if (isset($_GET['user_id']) && isset($_GET['token'])) {
         // デバッグ: セッション内容をログに出力
         file_put_contents('logs/session.log', gmdate('Y-m-d H:i:s')." after setting state and nonce SESSION ID: ".session_id()."\n".print_r($_SESSION, true), FILE_APPEND);
 
-        $line_auth_url = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id={$client_id}&redirect_uri={$redirect_uri}&state={$state}&scope=profile%20openid%20email&nonce={$nonce}";
+        $line_auth_url = "https://access.line.me/oauth2/v2.1/authorize?response_type=code&client_id={$client_id}&redirect_uri={$redirect_uri}&state={$state}&scope=profile%20openid%20email&nonce={$nonce}&bot_prompt=nomal";
+
+        // デバッグ: 認証URLをログに出力
+        file_put_contents('logs/session.log', gmdate('Y-m-d H:i:s')." LINE AUTH URL: {$line_auth_url}\n", FILE_APPEND);
 
         header("Location: {$line_auth_url}");
         exit;
