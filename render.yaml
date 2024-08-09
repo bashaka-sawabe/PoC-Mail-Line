@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: poc-gamail
+    name: poc-mail-line
     runtime: docker
     plan: free
     dockerfilePath: Dockerfile
