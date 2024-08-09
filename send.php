@@ -56,14 +56,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($sendType === 'email') {
         $toEmail = $user['email'];
-        $fromEmail = $_POST['from_email'];
+        $fromEmail = getenv('SMTP_USER'); // 環境変数から送信者のメールアドレスを取得
         $subject = $_POST['subject'];
 
         $mail = new PHPMailer\PHPMailer\PHPMailer();
         $mail->isSMTP();
-        $mail->Host = getenv('SMTP_SERVER');
-        $mail->Port = getenv('SMTP_PORT');
-        $mail->SMTPAuth = false;
+        $mail->Host = getenv('SMTP_SERVER'); // GmailのSMTPサーバー
+        $mail->Port = getenv('SMTP_PORT'); // 587 (TLS) または 465 (SSL)
+        $mail->SMTPAuth = true; // SMTP認証を有効にする
+        $mail->Username = getenv('SMTP_USER'); // Gmailアドレス
+        $mail->Password = getenv('SMTP_PASSWORD'); // Gmailのアプリパスワード
+        $mail->SMTPSecure = 'tls'; // TLS暗号化を使用
 
         $mail->SMTPDebug = 3; // デバッグ出力のレベルを設定
         $mail->Debugoutput = function($str, $level) {

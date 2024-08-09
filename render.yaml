@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: poc-gamail
+    runtime: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: local
+      - key: SMTP_USERNAME
+        value: ${SMTP_USER}
+      - key: SMTP_PASSWORD
+        value: ${SMTP_PASSWORD}
+      - key: EMAIL_FROM
+        value: atsudorasan@gmail.com
+      - key: MYSQL_ROOT_PASSWORD
+        value: ${MYSQL_ROOT_PASSWORD}
+      - key: MYSQL_DATABASE
+        value: ${MYSQL_DATABASE}
+      - key: MYSQL_USER
+        value: ${MYSQL_USER}
+      - key: MYSQL_PASSWORD
+        value: ${MYSQL_PASSWORD}
+      - key: LINE_CHANNEL_ACCESS_TOKEN
+        value: ${LINE_CHANNEL_ACCESS_TOKEN}
+      - key: LINE_CLIENT_ID
+        value: ${LINE_CLIENT_ID}
+      - key: LINE_CLIENT_SECRET
+        value: ${LINE_CLIENT_SECRET}
+      - key: BASE_URL
+        value: ${BASE_URL}
